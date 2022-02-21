@@ -1,4 +1,6 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
+using BCrypt;
 
 namespace AuthorizationASP
 {
@@ -13,23 +15,45 @@ namespace AuthorizationASP
         }
         public bool isLoginExist(string login)
         {
-            using(command = new SqlCommand($"SELECT * FROM [User] WHERE [Login] = {login}", connection))
+            using(command = new SqlCommand($"SELECT * FROM [User] WHERE [Login] = '{login}'", connection))
             {
-                SqlDataReader reader = command.ExecuteReader();
-                if(reader.Read())
-                    return true;
+                using(SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return true;
+                }
             }
             return false;
         }
         public bool isEmailExist(string email)
         {
-            using (command = new SqlCommand($"SELECT * FROM [User] WHERE [Email] = {email}", connection))
+            using (command = new SqlCommand($"SELECT * FROM [User] WHERE [Email] = '{email}'", connection))
             {
-                SqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                    return true;
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return true;
+                }
             }
             return false;
+        }
+
+        public bool AddUser(string login, string email, string password, DateTime birthday)
+        {
+            try
+            {
+                using (command = new SqlCommand($"INSERT INTO [User] VALUES('{login}', '{birthday.ToString("yyyy'-'MM'-'dd")}', " +
+                $"'{password}', '{email}', '{DateTime.Now.ToString("yyyy'-'MM'-'dd")}', 1)", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            
         }
     }
 }
