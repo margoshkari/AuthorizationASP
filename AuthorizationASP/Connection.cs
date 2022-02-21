@@ -4,11 +4,16 @@ namespace AuthorizationASP
 {
     public class Connection
     {
-        SqlConnection connection;
-        public Connection()
+        private static SqlConnection connection;
+        private Connection() { }
+        public static SqlConnection GetConnection()
         {
-            connection = new SqlConnection("Data Source=server1;Initial Catalog=UsersData;User Id=student;");
-            connection.Open();
+            if (connection == null)
+            {
+                connection = new SqlConnection("Data Source=server1;Initial Catalog=UsersData;User Id=student;");
+                connection.Open();
+            }
+            return connection;
         }
         /*CREATE DATABASE [UsersData];
 USE UsersData;
@@ -25,6 +30,8 @@ CREATE TABLE [User]
 	[Login] VARCHAR(30) UNIQUE NOT NULL,
 	[Birthday] DATE NOT NULL,
 	[PassHash] VARCHAR(120) NOT NULL,
+	[Email] VARCHAR(120) UNIQUE NOT NULL,
+	[RegistrDate] DATE NOT NULL,
 	[IdCategory] INT NOT NULL,
 	FOREIGN KEY ([IdCategory]) REFERENCES [UserCategory]([ID])
 );*/
