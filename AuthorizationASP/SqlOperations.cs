@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using BCrypt;
 
 namespace AuthorizationASP
 {
@@ -54,6 +53,23 @@ namespace AuthorizationASP
                 return false;
             }
             
+        }
+        public bool AddAdmin(string login, string email, string password, DateTime birthday)
+        {
+            try
+            {
+                using (command = new SqlCommand($"INSERT INTO [User] VALUES('{login}', '{birthday.ToString("yyyy'-'MM'-'dd")}', " +
+                $"'{password}', '{email}', '{DateTime.Now.ToString("yyyy'-'MM'-'dd")}', 2)", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
         }
     }
 }
