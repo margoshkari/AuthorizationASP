@@ -69,7 +69,18 @@ namespace AuthorizationASP
             {
                 return false;
             }
-
+        }
+        public bool isLogin(string login, string password)
+        {
+            using (command = new SqlCommand($"SELECT * FROM [User] WHERE [Login] = '{login}' AND [PassHash] = '{password}'", connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

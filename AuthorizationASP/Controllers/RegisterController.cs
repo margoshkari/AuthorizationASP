@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace AuthorizationASP.Controllers
 {
@@ -25,9 +27,9 @@ namespace AuthorizationASP.Controllers
             if (operations.isLoginExist(login) || operations.isEmailExist(email) || !CheckLength(login, password) || !IsValidEmail(email) ||!CheckDate(birthday))
                 return Problem(errorMsg);
 
-            HashPass(ref password);
+            password = ComputeSha256Hash(password);
 
-            if(!operations.AddUser(login, email, password, birthday))
+            if (!operations.AddUser(login, email, password, birthday))
                 return StatusCode(500);
 
             return StatusCode(200);
@@ -40,7 +42,7 @@ namespace AuthorizationASP.Controllers
                 || !CheckLength(login, password) || !IsValidEmail(email) ||!CheckDate(birthday))
                 return Problem(errorMsg);
 
-            HashPass(ref password);
+            password = ComputeSha256Hash(password);
 
             if (!operations.AddAdmin(login, email, password, birthday))
                 return StatusCode(500);
@@ -90,9 +92,19 @@ namespace AuthorizationASP.Controllers
                 return false;
             }
         }
-        private void HashPass(ref string pass)
+        private string ComputeSha256Hash(string rawData)
         {
-            pass = BCrypt.Net.BCrypt.HashPassword(pass);
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+ 
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }
